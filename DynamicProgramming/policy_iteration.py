@@ -3,7 +3,7 @@
 # @Time       : 2021/11/12 10:32
 # @Author     : zerlinwang
 # @File       : policy_iteration.py
-# @Description: 策略迭代实现
+# @Description: 策略迭代智能体
 # @Version    : 1.0
 
 import copy
@@ -52,17 +52,17 @@ class PolicyIteration:
             for s in range(self.s_sum):
                 q_sum = 0
                 for a in range(self.a_sum):
-                    p, next_state, reward, done = self.env.P[s][a]
-                    # 如果动作后到达的下一个状态游戏结束，到达马尔可夫链的末端，虽然游戏设置为回到开始点，但是计算价值时应该设置为0
-                    # 可以发现reward在括号里面而不在外面，这是因为这里reward收到S_{t+1}的影响
-                    # 周博磊老师的课程作业一开始没讲这个，想了我好久好久，但是以为reward只和S_{t}和A_{t}有关，想了好久为啥不放在外面
-                    q_value = p * (reward + self.gamma * self.v[next_state] * (1-done))
+                    q_value = 0
+                    for res in self.env.P[s][a]:
+                        p, next_state, reward, done = res
+                        # 如果动作后到达的下一个状态游戏结束，到达马尔可夫链的末端，虽然游戏设置为回到开始点，但是计算价值时应该设置为0
+                        # 可以发现reward在括号里面而不在外面，这是因为这里reward收到S_{t+1}的影响
+                        # 周博磊老师的课程作业一开始没讲这个，想了我好久好久，但是以为reward只和S_{t}和A_{t}有关，想了好久为啥不放在外面
+                        q_value += p * (reward + self.gamma * self.v[next_state] * (1-done))
                     q_sum += self.pi[s][a] * q_value
-                # print(q_sum, end=" ")
                 v_new[s] = q_sum
                 # 要求所有的差距都小于theta
                 diff = max(diff, abs(v_new[s] - self.v[s]))
-            # print()
             # 注意！！！这句话使得v_new和self.v实际上指向同一个列表！
             # ③
             self.v = v_new
@@ -83,8 +83,10 @@ class PolicyIteration:
         for s in range(self.s_sum):
             q_list = []
             for a in range(self.a_sum):
-                p, next_state, reward, done = self.env.P[s][a]
-                q_value = p * (reward + self.gamma * self.v[next_state] * (1-done))
+                q_value = 0
+                for res in self.env.P[s][a]:
+                    p, next_state, reward, done = res
+                    q_value += p * (reward + self.gamma * self.v[next_state] * (1-done))
                 q_list.append(q_value)
             q_max = max(q_list)
             q_max_num = q_list.count(q_max)

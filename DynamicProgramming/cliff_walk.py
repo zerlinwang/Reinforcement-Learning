@@ -27,7 +27,7 @@ class CliffWalkingEnv:
                     current_state = j * self.ncol + i
                     if current_state > start_state:  # 最后一排非起点，要么当前已经是掉下了悬崖，要么是已经到达了终点
                         # 回到起点
-                        P[j*self.ncol+i][a] = (1, start_state, 0, True)
+                        P[j*self.ncol+i][a] = [(1, start_state, 0, True)]
                         continue
                     # 设计next_state
                     next_x = max(0, min(self.ncol-1, i + change[a][0]))
@@ -47,7 +47,7 @@ class CliffWalkingEnv:
                         done = False
                         reward = -1
 
-                    P[j*self.ncol+i][a] = (1, next_state, reward, done)
+                    P[j*self.ncol+i][a] = [(1, next_state, reward, done)]
         return P
 
 
