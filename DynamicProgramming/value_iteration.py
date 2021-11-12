@@ -8,6 +8,9 @@
 
 
 class ValueIteration:
+    """
+    价值迭代，我们可以认为它是一种策略评估只进行了一次更新的策略迭代。需要注意的是，价值迭代中不存在一个显式的策略，我们只维护一个状态价值函数。
+    """
     def __init__(self, env, theta, gamma):
         self.env = env
         # 状态个数与动作个数
@@ -22,7 +25,8 @@ class ValueIteration:
 
     def value_iteration(self):
         """
-        策略迭代
+        依据是有时状态价值函数的收敛性不影响策略提升的效果，所以就不必继续计算了
+        依据贝尔曼最优方程进行最优状态价值函数的不动点收敛，没有用到策略pi
         Returns
         -------
         None，主要对于最优状态价值函数v进行修改
@@ -40,6 +44,8 @@ class ValueIteration:
                         # 最后的 * (1-done)容易忘啊
                         v_res += p * (reward + self.gamma * self.v[next_state] * (1-done))
                     v_list.append(v_res)
+                # **********与策略迭代的主要区别，这里是最优状态价值函数***********
+                # 这一步就是策略提升，（前面根据更新前的值）选择了使得状态价值函数最大的动作；这一步同时也是策略估计，根据策略函数选择的最大动作来计算最新的状态价值函数
                 v_max = max(v_list)
                 v_new[s] = v_max
                 diff = max(diff, abs(self.v[s] - v_max))
