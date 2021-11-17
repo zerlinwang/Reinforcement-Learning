@@ -34,6 +34,7 @@ class PolicyIteration:
     def policy_evaluation(self):
         """
         利用不动点迭代法计算状态价值函数v
+        以Policy为中心进行迭代，v只是起到辅助作用。这点和价值迭代相反
         Returns
         -------
         None
@@ -44,7 +45,7 @@ class PolicyIteration:
         while True:
             # 放两个地方的差距在哪？？？？？？？？？？？？？？？？？？？？
             # 解答：③使得v_new和self.v指向同一个列表，如果不重新让v_new指向一个新列表，则对v_new的修改会影响到self.v。上一个状态价值的修改在本轮中直接影响到其周围的状态的价值，这是和公式不符的
-            # 但是实验发现这样反而使得迭代收敛速度加快了——这个是不动点Jacobi迭代法和Gauss-Seidel迭代法的区别
+            # 但是实验发现这样反而使得迭代收敛速度加快了——这个是不动点Jacobi迭代法和Gauss-Seidel迭代法的区别（同步价值迭代和异步价值迭代的区别，后者只用维护一个价值列表，但是稳定性差）
             # ②
             v_new = [0] * self.env.ncol * self.env.nrow
             diff = 0
@@ -56,7 +57,7 @@ class PolicyIteration:
                     for res in self.env.P[s][a]:
                         p, next_state, reward, done = res
                         # 如果动作后到达的下一个状态游戏结束，到达马尔可夫链的末端，虽然游戏设置为回到开始点，但是计算价值时应该设置为0
-                        # 可以发现reward在括号里面而不在外面，这是因为这里reward收到S_{t+1}的影响
+                        # 可以发现reward在括号里面而不在外面，这是因为这里reward受到S_{t+1}的影响
                         # 周博磊老师的课程作业一开始没讲这个，想了我好久好久，但是以为reward只和S_{t}和A_{t}有关，想了好久为啥不放在外面
                         q_value += p * (reward + self.gamma * self.v[next_state] * (1-done))
                     q_sum += self.pi[s][a] * q_value
